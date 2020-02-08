@@ -436,3 +436,103 @@ function updateEmployeeManager() {
             });
     });
 }
+
+function removeDepartment() {
+    let array = [];
+    var query = "SELECT department_id as value, department_name as name FROM department";
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        array = JSON.parse(JSON.stringify(res));
+
+        inquirer
+            .prompt({
+                name: 'department',
+                type: 'list',
+                message: 'Which department do you want to remove?',
+                choices: array
+            })
+            .then(function (answer) {
+                connection.query("DELETE from department WHERE department_id = ?", [answer.department], function (err, res) {
+                    if (err) {
+                        if (err.errno === 1451) {
+                            console.log("You cannot delete this record because of foreign key constrait!");
+                        } else {
+                            console.log("An error occured!");
+                        }
+                        return init();
+                    }
+                    if (res.affectedRows > 0) {
+                        console.log(res.affectedRows + " record deleted successfully!");
+                    }
+                    console.log("");
+                    init();
+                });
+            });
+    });
+}
+
+function removeRole() {
+    let array = [];
+    var query = "SELECT role_id as value, role_title as name FROM role";
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        array = JSON.parse(JSON.stringify(res));
+
+        inquirer
+            .prompt({
+                name: 'role',
+                type: 'list',
+                message: 'Which role do want to remove?',
+                choices: array
+            })
+            .then(function (answer) {
+                connection.query("DELETE from role WHERE role_id = ?", [answer.role], function (err, res) {
+                    if (err) {
+                        if (err.errno === 1451) {
+                            console.log("You cannot delete this record because of foreign key constrait!");
+                        } else {
+                            console.log("An error occured!");
+                        }
+                        return init();
+                    }
+                    if (res.affectedRows > 0) {
+                        console.log(res.affectedRows + " record deleted successfully!");
+                    }
+                    console.log("");
+                    init();
+                });
+            });
+    });
+}
+
+function removeEmployee() {
+    var query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name " +
+        "FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 0";
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        let array = JSON.parse(JSON.stringify(res));
+        inquirer
+            .prompt({
+                name: 'employee',
+                type: 'list',
+                message: 'Which employee do you want to remove?',
+                choices: array
+            }).then(function (answer) {
+                connection.query("DELETE from employee WHERE employee_id = ?", [answer.employee], function (err, res) {
+                    if (err) {
+                        if (err.errno === 1451) {
+                            console.log("You cannot delete this record because of foreign key constrait!");
+                        } else {
+                            console.log("An error occured!");
+                        }
+                        return init();
+                    }
+                    if (res.affectedRows > 0) {
+                        console.log(res.affectedRows + " record deleted successfully!");
+                    }
+                    console.log("");
+                    init();
+                });
+            });
+    });
+}
